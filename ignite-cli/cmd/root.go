@@ -1,6 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2022 Charlie Maddex (charlie@multi.sh)
 */
 package cmd
 
@@ -10,21 +9,15 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "ignite-cli",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Use:   "ignite",
+	Short: "A CLI for system administrators.",
+	Long: `A CLI for system administors.
+	This includes networking, storage, and Office 365 administration.
+	The CLI is written in Go and uses Cobra for the CLI framework.
+	It is designed to be cross-platform and run on Windows, Linux, and macOS.
+	If you have any questions, please contact the developer at charlie@multi.sh.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,5 +40,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-
