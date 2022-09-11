@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	"github.com/fatih/color"
@@ -39,37 +40,70 @@ var traceCmd = &cobra.Command{
 		fmt.Fprintf(color.Output, "TRACE %s (%s):\n", green(pinger.Addr()), green(pinger.IPAddr()))
 
 		errch := make(chan error, 1)
-		tracecmd := exec.Command("traceroute", pinger.Addr())
-
-		stdout, err := tracecmd.StdoutPipe()
-		if err != nil {
-			fmt.Fprintf(color.Output, "%s\n", red(err))
-		}
-		if err := tracecmd.Start(); err != nil {
-			fmt.Fprintf(color.Output, "%s\n", red(err))
-		}
-		go func() {
-			errch <- tracecmd.Wait()
-		}()
-
-		go func() {
-			scanner := bufio.NewScanner(stdout)
-			fmt.Println("")
-			for scanner.Scan() {
-				line := scanner.Text()
-				fmt.Fprintf(color.Output, "%s\n", white(line))
-			}
-		}()
-
-		select {
-		case <-time.After(time.Second * 12):
-			fmt.Fprintf(color.Output, "%s\n", red("traceroute timed out."))
-			return
-		case err := <-errch:
+		if runtime.GOOS == "windows" {
+			tracecmd := exec.Command("traceroute", pinger.Addr())
+			stdout, err := tracecmd.StdoutPipe()
 			if err != nil {
 				fmt.Fprintf(color.Output, "%s\n", red(err))
 			}
+			if err := tracecmd.Start(); err != nil {
+				fmt.Fprintf(color.Output, "%s\n", red(err))
+			}
+			go func() {
+				errch <- tracecmd.Wait()
+			}()
+
+			go func() {
+				scanner := bufio.NewScanner(stdout)
+				fmt.Println("")
+				for scanner.Scan() {
+					line := scanner.Text()
+					fmt.Fprintf(color.Output, "%s\n", white(line))
+				}
+			}()
+
+			select {
+			case <-time.After(time.Second * 12):
+				fmt.Fprintf(color.Output, "%s\n", red("traceroute timed out."))
+				return
+			case err := <-errch:
+				if err != nil {
+					fmt.Fprintf(color.Output, "%s\n", red(err))
+				}
+			}
+		} else {
+			tracecmd := exec.Command("traceroute", pinger.Addr())
+			stdout, err := tracecmd.StdoutPipe()
+			if err != nil {
+				fmt.Fprintf(color.Output, "%s\n", red(err))
+			}
+			if err := tracecmd.Start(); err != nil {
+				fmt.Fprintf(color.Output, "%s\n", red(err))
+			}
+			go func() {
+				errch <- tracecmd.Wait()
+			}()
+
+			go func() {
+				scanner := bufio.NewScanner(stdout)
+				fmt.Println("")
+				for scanner.Scan() {
+					line := scanner.Text()
+					fmt.Fprintf(color.Output, "%s\n", white(line))
+				}
+			}()
+
+			select {
+			case <-time.After(time.Second * 12):
+				fmt.Fprintf(color.Output, "%s\n", red("traceroute timed out."))
+				return
+			case err := <-errch:
+				if err != nil {
+					fmt.Fprintf(color.Output, "%s\n", red(err))
+				}
+			}
 		}
+
 	},
 }
 
